@@ -9,7 +9,7 @@ try:
         # {'role': 'user', 'content': '你懂幾種語言？'}
         # {'role': 'user', 'content': '法文怎麼說「你好」？'}
         # {'role': 'user', 'content': '你會記住我剛剛說的話嗎？'}
-        {'role': 'user', 'content': '你可以變成會記住我對話內容的版本嗎？'}
+        {'role': 'user', 'content': 'ollama適合用conda跑，還是用pip跑？'}
     ])
     print("Ollama 連線成功！")
     print("AI 回應：", response['message']['content'])
