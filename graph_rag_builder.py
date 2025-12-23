@@ -6,6 +6,8 @@ from neo4j import GraphDatabase
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
+import glob # for batch pdf processing
+
 # ================= 設定區域 =================
 # 請將這裡換成你的 Neo4j 密碼
 NEO4J_URI = "bolt://localhost:7687"
@@ -13,6 +15,8 @@ NEO4J_AUTH = ("neo4j", "12345678")
 
 # PDF 路徑 (請修改為你電腦上實際的 PDF 路徑)
 PDF_PATH = "source-pdf/BASILISKV3PRO-00000170-zh-TW.pdf"
+
+PDF_FOLDER_PATH = "./source-pdf"
 
 # ================= 1. 資料庫連線管理 =================
 class GraphRAGBuilder:
@@ -127,15 +131,46 @@ class GraphRAGBuilder:
         except Exception as e:
             print(f"!!! Neo4j 寫入失敗: {e}")
 
+# # ================= 主程式執行 =================
+# if __name__ == "__main__":
+#     # 建立一個測試用的文字檔或 PDF，若無 PDF 可用下面代碼產生一個假的 PDF 測試
+#     # 這裡假設你有一個 PDF，如果沒有，請將 PDF_PATH 指向你電腦隨便一個 PDF
+    
+#     if not os.path.exists(PDF_PATH):
+#         print(f"錯誤：找不到檔案 {PDF_PATH}，請修改程式碼中的路徑。")
+#     else:
+#         builder = GraphRAGBuilder()
+#         builder.ingest_document(PDF_PATH)
+#         builder.close()
+#         print("\n>>> 全部完成！請打開 Neo4j Browser 查看圖譜。")
+
 # ================= 主程式執行 =================
 if __name__ == "__main__":
-    # 建立一個測試用的文字檔或 PDF，若無 PDF 可用下面代碼產生一個假的 PDF 測試
-    # 這裡假設你有一個 PDF，如果沒有，請將 PDF_PATH 指向你電腦隨便一個 PDF
+    builder = GraphRAGBuilder()
     
-    if not os.path.exists(PDF_PATH):
-        print(f"錯誤：找不到檔案 {PDF_PATH}，請修改程式碼中的路徑。")
+    # 1. 取得資料夾內所有的 PDF 檔案路徑
+    pdf_files = glob.glob(os.path.join(PDF_FOLDER_PATH, "*.pdf"))
+    
+    if not pdf_files:
+        print(f"!!! 在 {PDF_FOLDER_PATH} 中找不到任何 PDF 檔案。")
     else:
-        builder = GraphRAGBuilder()
-        builder.ingest_document(PDF_PATH)
-        builder.close()
-        print("\n>>> 全部完成！請打開 Neo4j Browser 查看圖譜。")
+        print(f"發現 {len(pdf_files)} 個檔案，準備開始批次處理...")
+        
+        for index, file_path in enumerate(pdf_files):
+            file_name = os.path.basename(file_path)
+            print(f"\n--- [{index + 1}/{len(pdf_files)}] 正在處理: {file_name} ---")
+            
+            try:
+                # 呼叫原本寫好的 ingest_document 函式
+                builder.ingest_document(file_path)
+                print(f"ok! {file_name} 處理完成。")
+            except Exception as e:
+                print(f"!!! 處理檔案 {file_name} 時發生錯誤: {e}")
+                # 這裡可以選擇繼續下一個檔案，而不是讓整個程式崩潰
+                continue
+                
+        print("\n" + "="*30)
+        print(f">>> 所有檔案處理完畢！共計 {len(pdf_files)} 個。")
+        print(">>> 現在可以打開 Neo4j Browser 查詢合併後的全局圖譜。")
+
+    builder.close()
