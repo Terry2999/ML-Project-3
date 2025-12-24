@@ -209,3 +209,4 @@ __marimo__/
 # custom ignore rules
 *.pdf
 output-test/
+.DS_Store
