@@ -14,7 +14,7 @@ NEO4J_URI = "bolt://localhost:7687"
 NEO4J_AUTH = ("neo4j", "12345678") 
 
 # PDF 路徑 (請修改為你電腦上實際的 PDF 路徑)
-PDF_PATH = "source-pdf/BASILISKV3PRO-00000170-zh-TW.pdf"
+PDF_PATH = "source-pdf/Razer Pro Click Mini - Master Guide -zh-TW.pdf"
 
 PDF_FOLDER_PATH = "./source-pdf"
 
